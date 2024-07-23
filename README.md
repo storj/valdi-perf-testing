@@ -15,6 +15,7 @@
    python -m venv llama3_env
    source llama3_env/bin/activate  # On Windows, use: llama3_env\Scripts\activate
    ```
+   
 2. Install the required packages:
 
    ```
@@ -29,15 +30,17 @@
    ```
 
    Follow the prompts to log in with your Hugging Face account credentials.
-4. Accept the Llama3.x model license:
+   
+5. Accept the Llama3.x model license:
 
    - Visit the Llama3.x model page on Hugging Face and select the model you want to work with(e.g., https://huggingface.co/meta-llama/)
    - Click on "Access repository" and accept the license agreement
-5. Download the model using huggingface-cli:
+
+   
+6. Download the model using huggingface-cli:
 
    ```
    huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/Meta-Llama-3.1-8B --exclude "original/*"
-
    ```
 
    Note: Replace "Meta-Llama-3.1-8B" with the specific Llama3 model version you want to use.
@@ -48,31 +51,25 @@
 2. To see usage information and available options, use the "-h" or "--help" flag:
 
 ```
-
    python llama3-tps-measurement-single.py -h
-
 ```
 
 3. Run the script, specifying the path to the downloaded model:
 
 ```
    python llama3-tps-measurement-single.py ./meta-llama/Meta-Llama-3.1-8B
-
 ```
 
    or for multiple GPUs:
 
 ```
    python llama3-tps-measurement-multi.py ./meta-llama/Meta-Llama-3.1-8B
-
 ```
 
 4. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
 
 ```
-
    python llama3-tps-measurement-single.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
-
 ```
 
 5. The script will load the model, perform a warm-up run, and then measure the tokens per second (TPS), GPU memory usage, and CPU utilization for the specified number of runs.
@@ -91,7 +88,3 @@
 - GPU memory usage is reported in megabytes (MB).
 - CPU utilization is reported as a percentage of total CPU capacity.
 - Ensure you have proper permissions and have accepted the license agreement for the Llama3 model on Hugging Face.
-
-```
-
-```
