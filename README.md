@@ -43,6 +43,10 @@ huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/M
 
 ```
 
+
+
+```
+
    Note: Replace "Meta-Llama-3.1-8B" with the specific Llama3 model version you want to use.
 
 ## Usage
@@ -52,33 +56,32 @@ huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/M
 
 ```
 
-   python llama3_tps_measurement-single.py -h
+   python llama3-tps-measurement-single.py -h
 
 ```
+
 3. Run the script, specifying the path to the downloaded model:
 
 ```
+   python llama3-tps-measurement-single.py ./meta-llama/Meta-Llama-3.1-8B
 
-   python llama3_tps_measurement-single.py ./meta-llama/Meta-Llama-3.1-8B
+```
 
    or for multiple GPUs:
 
-   python llama3_tps_measurement-multi.py ./meta-llama/Meta-Llama-3.1-8B
+```
+   python llama3-tps-measurement-multi.py ./meta-llama/Meta-Llama-3.1-8B
 
 ```
+
 4. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
 
 ```
 
+   python llama3-tps-measurement-single.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
 
 ```
-4. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
 
-```
-
-   python llama3_tps_measurement.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
-
-```
 5. The script will load the model, perform a warm-up run, and then measure the tokens per second (TPS), GPU memory usage, and CPU utilization for the specified number of runs.
 6. The results will be printed to the console, including:
 
@@ -95,4 +98,7 @@ huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/M
 - GPU memory usage is reported in megabytes (MB).
 - CPU utilization is reported as a percentage of total CPU capacity.
 - Ensure you have proper permissions and have accepted the license agreement for the Llama3 model on Hugging Face.
+
+```
+
 ```
