@@ -36,16 +36,9 @@
 5. Download the model using huggingface-cli:
 
    ```
+   huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/Meta-Llama-3.1-8B --exclude "original/*"
 
    ```
-
-huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/Meta-Llama-3.1-8B --exclude "original/*"
-
-```
-
-
-
-```
 
    Note: Replace "Meta-Llama-3.1-8B" with the specific Llama3 model version you want to use.
 
