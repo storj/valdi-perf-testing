@@ -39,7 +39,6 @@ options:
    ```
 
    Follow the prompts to log in with your Hugging Face account credentials.
-
 3. Accept the Llama3.x model license:
 
    - Visit the Llama3.x model page on Hugging Face and select the model you want to work with(e.g., https://huggingface.co/meta-llama/)
@@ -66,7 +65,7 @@ options:
    python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B
 ```
 
-    or for multiple models:
+or for multiple models:
 
 ```
    python llama3-perf.py ./meta-llama --multi_model
@@ -74,7 +73,7 @@ options:
 
 3. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
 
-```  
+```
   python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
 ```
 
