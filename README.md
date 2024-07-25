@@ -28,7 +28,9 @@ options:
 1. Install the required packages:
 
    ```
+
    pip install transformers pynvml psutil huggingface_hub torch accelerate pathlib
+
    ```
 
    Note: Adjust the CUDA version (cu118) in the PyTorch installation command to match your system's CUDA version.
@@ -39,6 +41,7 @@ options:
    ```
 
    Follow the prompts to log in with your Hugging Face account credentials.
+
 3. Accept the Llama3.x model license:
 
    - Visit the Llama3.x model page on Hugging Face and select the model you want to work with(e.g., https://huggingface.co/meta-llama/)
@@ -47,7 +50,6 @@ options:
 
    ```
    huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/Meta-Llama-3.1-8B --exclude "original/*"
-
    ```
 
    Note: Replace "Meta-Llama-3.1-8B" with the specific Llama3 model version you want to use.
@@ -57,7 +59,6 @@ options:
 1. To see usage information and available options, use the "-h" or "--help" flag:
 
 ```
-
    python llama3-perf.py -h
 
 ```
@@ -81,8 +82,8 @@ options:
 3. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
 
 ```
-
-   python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
+   
+  python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
 
 ```
 
@@ -103,7 +104,3 @@ The results will be printed to the console, including:
 - GPU memory usage is reported in megabytes (MB).
 - CPU utilization is reported as a percentage of total CPU capacity.
 - Ensure you have proper permissions and have accepted the license agreement for the Llama3 model on Hugging Face.
-
-```
-
-```
