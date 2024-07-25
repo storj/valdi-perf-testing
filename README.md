@@ -28,9 +28,7 @@ options:
 1. Install the required packages:
 
    ```
-
    pip install transformers pynvml psutil huggingface_hub torch accelerate pathlib
-
    ```
 
    Note: Adjust the CUDA version (cu118) in the PyTorch installation command to match your system's CUDA version.
@@ -60,31 +58,24 @@ options:
 
 ```
    python llama3-perf.py -h
-
 ```
 
 2. Run the script, specifying the path to the downloaded model:
 
 ```
-
    python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B
-
 ```
 
     or for multiple models:
 
 ```
-
    python llama3-perf.py ./meta-llama --multi_model
-
 ```
 
 3. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
 
-```
-   
+```  
   python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
-
 ```
 
 The script will load the model, perform a warm-up run, and then measure the tokens per second (TPS), GPU memory usage, and CPU utilization for the specified number of runs.
