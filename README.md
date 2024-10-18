@@ -1,304 +1,449 @@
-Here is a step-by-step guide to set up your environment on the new virtual machine and get ready to run the tests for Llama 3.2:
+# README.md
 
+## Performance Testing of Llama-3.2-11B Vision-Instruct Model
 
-### Step 1: Initial Setup
+This guide provides a comprehensive walkthrough for setting up an environment to run performance tests on the **Llama-3.2-11B Vision-Instruct** model developed by Meta. You'll find detailed instructions on:
 
-1. **Connect to the Virtual Machine**:
+- Hardware and software configurations
+- Setting up the environment
+- Running the provided test scripts
+- Collecting and downloading results
 
-Run this in your terminal to access the VM:
+By the end of this guide, you'll be able to reproduce the tests, analyze the performance, and adapt the setup for your own experiments.
 
-```bash
+---
 
-ssh -p 10034 -i Dima_Levin.pem user@8.17.147.159
+## Table of Contents
 
-```
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+  - [Hardware Requirements](#hardware-requirements)
+  - [Software Requirements](#software-requirements)
+- [Setting Up the Environment](#setting-up-the-environment)
+  - [1. Accessing the Virtual Machine](#1-accessing-the-virtual-machine)
+  - [2. System Update and Essential Dependencies](#2-system-update-and-essential-dependencies)
+  - [3. Python Environment Setup](#3-python-environment-setup)
+  - [4. Installing Required Python Packages](#4-installing-required-python-packages)
+  - [5. Downloading Llama-3.2-11B Vision-Instruct Model](#5-downloading-llama-32-11b-vision-instruct-model)
+- [Running the Tests](#running-the-tests)
+  - [Test 1: Inference Time with Varying Batch Sizes and Input Lengths](#test-1-inference-time-with-varying-batch-sizes-and-input-lengths)
+  - [Test 2: Image Processing Performance](#test-2-image-processing-performance)
+  - [Test 4: Scalability Test with Sequential Request Processing](#test-4-scalability-test-with-sequential-request-processing)
+- [Collecting and Downloading Results](#collecting-and-downloading-results)
+  - [Downloading Result Files](#downloading-result-files)
+  - [Uploading Files to the Virtual Machine](#uploading-files-to-the-virtual-machine)
+- [Additional Notes](#additional-notes)
+- [Conclusion](#conclusion)
 
-  
+---
 
-2. **Update and Upgrade the System**:
+## Introduction
 
-First, make sure your system is up-to-date:
+This guide aims to help AI enthusiasts and small business CTOs replicate performance tests on the **Llama-3.2-11B Vision-Instruct** model. By following this guide, you'll understand:
 
-```bash
+- How to set up a suitable environment for testing
+- How to run various performance tests
+- How to collect and interpret the results
 
-sudo apt update && sudo apt upgrade -y≈
+---
 
-```
+## Prerequisites
 
-  
+### Hardware Requirements
 
-3. **Install Essential Dependencies**:
+To run these tests efficiently, you'll need access to a machine with the following specifications:
 
-Install the basic build tools and system dependencies:
+- **GPU**: NVIDIA GeForce RTX 4090 with 24 GB VRAM
+- **CPU**: 20 vCPUs (e.g., AMD EPYC 7B13)
+- **RAM**: At least 75 GB
+- **Storage**: At least 350 GB SSD
 
-```bash
+You can rent such a machine from [Valdi.ai](https://valdi.ai/), a platform that allows you to access high-performance GPUs in the cloud.
 
-sudo apt install build-essential git curl wget -y
+### Software Requirements
 
-```
+- **Operating System**: Ubuntu 20.04 or later
+- **Python**: Version 3.10
+- **CUDA**: Version compatible with your GPU drivers (CUDA 11.8 recommended)
+- **NVIDIA Drivers**: Latest drivers compatible with your GPU
 
-  
+---
 
-### Step 2: Install Python and Create Environment
+## Setting Up the Environment
 
-1. **Install Python 3.10**:
+### 1. Accessing the Virtual Machine
 
-Install Python 3.10 if it's not already available on the system:
+**Note**: Replace `[your_pem_file.pem]`, `[port_number]`, and `[server_ip]` with your actual `.pem` file name, port number, and server IP address.
 
-```bash
+1. **Set Permissions for Your PEM File**:
 
-sudo apt install python3.10 python3.10-venv python3.10-dev -y
+   ```bash
+   chmod 400 [your_pem_file].pem
+   ```
 
-```
+2. **Connect to the Virtual Machine via SSH**:
 
-  
+   ```bash
+   ssh -p [port_number] -i [your_pem_file].pem user@[server_ip]
+   ```
 
-2. **Install pip**:
+   **Example**:
 
-Get pip, if it’s not available:
+   ```bash
+   ssh -p 10034 -i Dima_Levin.pem user@8.17.147.159
+   ```
 
-```bash
+### 2. System Update and Essential Dependencies
 
-sudo apt install python3-pip -y
+Once connected to the VM:
 
-```
+1. **Update and Upgrade the System**:
 
-  
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
 
-3. **Create Virtual Environment**:
+2. **Install Essential Dependencies**:
 
-Create a virtual environment for Python:
+   ```bash
+   sudo apt install build-essential git curl wget -y
+   ```
 
-```bash
+### 3. Python Environment Setup
 
-python3.10 -m venv llama3_env
+1. **Install Python 3.10 and pip**:
 
-```
+   ```bash
+   sudo apt install python3.10 python3.10-venv python3.10-dev python3-pip -y
+   ```
 
-  
+2. **Create a Virtual Environment**:
 
-4. **Activate the Virtual Environment**:
+   ```bash
+   python3.10 -m venv llama3_env
+   ```
 
-Activate the environment:
+3. **Activate the Virtual Environment**:
 
-```bash
+   ```bash
+   source llama3_env/bin/activate
+   ```
 
-source llama3_env/bin/activate
+4. **Upgrade pip**:
 
-```
+   ```bash
+   pip install --upgrade pip
+   ```
 
-  
+### 4. Installing Required Python Packages
 
-5. **Upgrade pip**:
+1. **Install PyTorch with CUDA Support**:
 
-Upgrade pip inside the environment:
+   ```bash
+   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+   ```
 
-```bash
+2. **Install Hugging Face Transformers and Other Dependencies**:
 
-pip install --upgrade pip
+   ```bash
+   pip install transformers huggingface_hub pynvml accelerate requests Pillow
+   ```
 
-```
+3. **Install xFormers for Memory Optimization**:
 
-  
+   ```bash
+   pip install xformers
+   ```
 
-### Step 3: Install Required Libraries
+4. **Install Additional Packages for Performance Monitoring**:
 
-1. **Install PyTorch with CUDA**:
+   ```bash
+   pip install psutil gpustat pandas
+   ```
 
-Install PyTorch with CUDA support:
+### 5. Downloading Llama-3.2-11B Vision-Instruct Model
 
-```bash
-
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-```
-
-  
-
-2. **Install Additional Required Libraries**:
-
-Install `transformers`, `huggingface_hub`, and other libraries:
-
-```bash
-
-pip install transformers huggingface_hub pynvml accelerate requests Pillow
-
-```
-
-  
-
-3. **Install xFormers**:
-
-To optimize memory during multi-modal model testing, install xFormers:
-
-```bash
-
-pip install xformers
-
-```
-
-  
-
-### Step 4: Download and Setup Llama-3.2-11B-Vision-Instruct
-
-| ! NOTE: be sure that you have gor the access to the Hugging Face and to the LLama 3.2 11B model there. For doing this follow this link -> https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct 
+**Important**: Ensure you have access to the model on Hugging Face. You **must request access** via the [model page](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct) before proceeding.
 
 1. **Login to Hugging Face CLI**:
 
-You need to authenticate with Hugging Face to download the model:
+   ```bash
+   huggingface-cli login
+   ```
+
+   Follow the prompts to authenticate.
+
+2. **Download the Model**:
+
+   ```bash
+   mkdir llama3_models
+   huggingface-cli download meta-llama/Llama-3.2-11B-Vision-Instruct --local-dir llama3_models --include "model.safetensors*"
+   ```
+
+---
+
+## Running the Tests
+
+### Test 1: Inference Time with Varying Batch Sizes and Input Lengths
+
+**Objective**: Measure tokens-per-second (TPS) for different batch sizes and input lengths.
+
+1. **Navigate to the Test Directory**:
+
+   ```bash
+   cd ~
+   mkdir performance_test
+   cd performance_test
+   ```
+
+2. **Create the Test Script**:
+
+   To create a new file on your VM, use:
+
+   ```bash
+   nano test_1.py
+   ```
+
+   Paste the following code into `test_1.py`:
+
+   ```python
+   [Paste the code from test_1 here]
+   ```
+
+   Save and exit by pressing `Ctrl + O`, then `Enter`, and `Ctrl + X`.
+
+3. **Run the Test**:
+
+   ```bash
+   python test_1.py
+   ```
+
+4. **Results**:
+
+   The script will output results to the console and save them to `inference_time_text.csv`.
+
+### Test 2: Image Processing Performance
+
+**Objective**: Evaluate the model's image processing capabilities.
+
+1. **Create an Images Directory**:
+
+   ```bash
+   mkdir ~/images
+   ```
+
+2. **Upload Images to the VM**:
+
+   From your local machine, upload images using `scp`:
+
+   ```bash
+   scp -P [port_number] -i [your_pem_file].pem -r /path/to/your/images/* user@[server_ip]:~/images/
+   ```
+
+   **Example**:
+
+   ```bash
+   scp -P 20013 -i Dima_Levin.pem -r ~/Downloads/img/* user@69.55.141.236:~/images/
+   ```
+
+3. **Create the Test Script**:
+
+   In the `performance_test` directory, create `test_2.py`:
+
+   ```bash
+   nano test_2.py
+   ```
+
+   Paste the following content into `test_2.py`:
+
+   ```python
+   [Paste the code from test_2 here]
+   ```
+
+   Save and exit (`Ctrl + O`, `Enter`, `Ctrl + X`).
+
+4. **Run the Test**:
+
+   ```bash
+   python test_2.py
+   ```
+
+5. **Results**:
+
+   The script will process each image and save the results to `image_processing_results.csv`.
+
+### Test 4: Scalability Test with Sequential Request Processing
+
+**Objective**: Assess how the model handles sequential processing of multiple requests.
+
+1. **Create the Test Script**:
+
+   In the `performance_test` directory, create `test_4.py`:
+
+   ```bash
+   nano test_4.py
+   ```
+
+   Paste the following content into `test_4.py`:
+
+   ```python
+   [Paste the code from test_4 here]
+   ```
+
+   Save and exit (`Ctrl + O`, `Enter`, `Ctrl + X`).
+
+2. **Run the Test**:
+
+   ```bash
+   python test_4.py
+   ```
+
+3. **Results**:
+
+   The script will simulate processing for different numbers of users and save the results to `scalability_results.csv`.
+
+---
+
+## Collecting and Downloading Results
+
+After running the tests, you'll want to download the result files to your local machine for analysis.
+
+### Downloading Result Files
+
+From your local machine, use `scp` to download the files:
+
+1. **Download `inference_time_text.csv`**:
+
+   ```bash
+   scp -P [port_number] -i [your_pem_file].pem user@[server_ip]:~/performance_test/inference_time_text.csv ~/Downloads/
+   ```
+
+2. **Download `image_processing_results.csv`**:
+
+   ```bash
+   scp -P [port_number] -i [your_pem_file].pem user@[server_ip]:~/performance_test/image_processing_results.csv ~/Downloads/
+   ```
+
+3. **Download `scalability_results.csv`**:
+
+   ```bash
+   scp -P [port_number] -i [your_pem_file].pem user@[server_ip]:~/performance_test/scalability_results.csv ~/Downloads/
+   ```
+
+**Example**:
 
 ```bash
-
-huggingface-cli login
-
+scp -P 20013 -i Dima_Levin.pem user@69.55.141.236:~/performance_test/inference_time_text.csv ~/Downloads/
 ```
 
-  
+### Uploading Files to the Virtual Machine
 
-Follow the instructions to log in with your Hugging Face account.
+If you need to upload additional files to the VM:
 
-  
+1. **Upload Files Using `scp`**:
 
-2. **Download Llama-3.2-11B-Vision-Instruct**:
+   ```bash
+   scp -P [port_number] -i [your_pem_file].pem /local/path/to/file user@[server_ip]:/remote/path/
+   ```
 
-Use the Hugging Face CLI to download the model:
+**Example**:
 
 ```bash
-
-huggingface-cli download meta-llama/Llama-3.2-11B-Vision-Instruct --local-dir llama3_models --include "model.safetensors*"
-
+scp -P 20013 -i Dima_Levin.pem -r ~/Downloads/img/* user@69.55.141.236:~/images/
 ```
 
-  
+---
 
-### Step 5: Prepare Testing Scripts and Dependencies
+## Additional Notes
 
-1. **Clone the Testing Repository**:
+- **Activating the Environment**:
 
-If you have a repository or scripts, clone or copy them to your machine. If not, create a working directory for the performance tests:
+  Each time you log into the VM, remember to activate your Python virtual environment:
 
-```bash
+  ```bash
+  source ~/llama3_env/bin/activate
+  ```
 
-mkdir performance_test && cd performance_test
+- **Creating and Editing Files**:
 
-```
+  - **Create a New File**:
 
-  
+    Use `nano` to create or edit files:
 
-2. **Download or Create Performance Testing Script**:
+    ```bash
+    nano filename.py
+    ```
 
-You can use the script that was working for you earlier. Here's a sample command:
+    - To save changes, press `Ctrl + O`, then `Enter`.
+    - To exit `nano`, press `Ctrl + X`.
 
-```bash
+  - **Delete File Contents Quickly**:
 
-wget https://your-testing-script-link/llama3_perf_vllm.py
+    If you want to delete the content of a file quickly:
 
-```
+    ```bash
+    echo '' > filename.py
+    ```
 
-  
+- **GPU and CPU Monitoring**:
 
-3. **Install Additional Packages for Performance Monitoring**:
+  - **GPU Monitoring**:
 
-Install any performance monitoring packages like `psutil`:
+    Run `nvidia-smi` to monitor GPU usage:
 
-```bash
+    ```bash
+    watch -n 1 nvidia-smi
+    ```
 
-pip install psutil pandas
+  - **CPU Monitoring**:
 
-```
+    Use `htop` to monitor CPU and memory:
 
-  
+    ```bash
+    htop
+    ```
 
-### Step 6: Run the Tests
+- **CUDA Memory Configuration**:
 
-1. **Ensure the Correct Environment Variables**:
+  Set the following environment variable to optimize CUDA memory allocation:
 
-Set CUDA memory configurations:
+  ```bash
+  export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+  ```
 
-```bash
+- **SSH Key Permissions**:
 
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+  Ensure your `.pem` file has the correct permissions:
 
-```
+  ```bash
+  chmod 400 [your_pem_file].pem
+  ```
 
-  
+- **Access to Llama-3.2-11B Vision-Instruct Model**:
 
-2. **Run the First Test (Tokens per Second)**:
+  Before downloading the model, you **must request access** on Hugging Face using this link:
 
-Run the script:
+  [https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct)
 
-```bash
+---
 
-python llama3_perf_vllm.py
+## Conclusion
 
-```
+By following this guide, you've set up an environment to run performance tests on the **Llama-3.2-11B Vision-Instruct** model. You've learned how to:
 
-  
+- Configure the necessary hardware and software
+- Run various performance tests
+- Collect and download results for analysis
 
-3. **Placeholder for Image Testing**:
+These tests help in understanding the model's capabilities and limitations, especially in terms of inference time, resource utilization, and scalability. Feel free to modify the test scripts and experiment with different configurations to further explore the model's performance.
 
-For image-based tests, make sure you have the image files available in a directory. You can upload the images using `scp` or download them with `wget`:
+---
 
-```bash
+**Next Steps**:
 
-mkdir images && cd images
+- **Analyze the Results**: Use tools like pandas or Excel to analyze the CSV files and visualize the performance metrics.
+- **Optimize the Model**: Experiment with different settings in the test scripts to optimize performance for your specific use case.
+- **Scale Up**: Consider running tests on machines with multiple GPUs to assess scalability in a distributed environment.
+- **Feedback and Collaboration**: If you have suggestions or improvements, feel free to contribute to the project repository or reach out for collaboration opportunities.
 
-wget <image-url-1>
-
-wget <image-url-2>
-
-wget <image-url-3>
-
-```
-
-  
-
-### Step 7: Review and Output Results
-
-1. **Output Results to CSV**:
-
-Ensure the script outputs the results in CSV format. If needed, modify your Python script to append results to a CSV file, like:
-
-```python
-
-import csv
-
-with open("performance_results.csv", "w", newline="") as csvfile:
-
-writer = csv.writer(csvfile)
-
-writer.writerow(["Metric", "Value"])
-
-writer.writerow(["Tokens per Second", avg_tokens_per_second])
-
-```
-
-  
-
-### Step 8: Scaling and Resource Monitoring
-
-1. **Use nvidia-smi for GPU Monitoring**:
-
-Open another terminal and run:
-
-```bash
-
-nvidia-smi
-
-```
-
-  
-
-2. **Use `htop` for CPU Monitoring**:
-
-Run:
-
-```bash
-
-htop
-
-```
-
-  
-
-After completing these steps, you'll have the environment fully set up, ready to run the performance tests for Llama 3.2, and collect results in a structured way. Let me know when you’re ready to move forward with specific tests!
+**Happy Testing!**
