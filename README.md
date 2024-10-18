@@ -1,96 +1,304 @@
-# Llama3 TPS Measurement Script: Installation and Usage Instructions
+Here is a step-by-step guide to set up your environment on the new virtual machine and get ready to run the tests for Llama 3.2:
+
+
+### Step 1: Initial Setup
+
+1. **Connect to the Virtual Machine**:
+
+Run this in your terminal to access the VM:
+
+```bash
+
+ssh -p 10034 -i Dima_Levin.pem user@8.17.147.159
 
 ```
-usage: llama3-perf.py [--num_runs NUM_RUNS] [--multi_model] [--csv_output CSV_OUTPUT] [-h] path
 
-Measure performance for Llama3 models
+  
 
-positional arguments:
-  path                  Path to a single model or directory containing multiple models
+2. **Update and Upgrade the System**:
 
-options:
-  --num_runs NUM_RUNS   Number of runs for each measurement
-  --multi_model         Process multiple models in the specified directory
-  --csv_output CSV_OUTPUT
-                        Path to output CSV file
-  -h, --help            Show this help message and exit
-```
+First, make sure your system is up-to-date:
 
-## Prerequisites
+```bash
 
-- Python 3.7 or higher
-- CUDA-capable GPU (required)
-- CUDA toolkit and cuDNN installed
-- Hugging Face account with access to Llama3 model
-
-## Installation Steps
-
-1. Install the required packages:
-
-   ```
-   pip install transformers pynvml psutil huggingface_hub torch accelerate pathlib
-   ```
-
-   Note: Adjust the CUDA version (cu118) in the PyTorch installation command to match your system's CUDA version.
-2. Set up Hugging Face CLI:
-
-   ```
-   huggingface-cli login
-   ```
-
-   Follow the prompts to log in with your Hugging Face account credentials.
-3. Accept the Llama3.x model license:
-
-   - Visit the Llama3.x model page on Hugging Face and select the model you want to work with(e.g., https://huggingface.co/meta-llama/)
-   - Click on "Access repository" and accept the license agreement
-4. Download the model using huggingface-cli:
-
-   ```
-   huggingface-cli download meta-llama/Meta-Llama-3.1-8B --local-dir ./meta-llama/Meta-Llama-3.1-8B --exclude "original/*"
-   ```
-
-   Note: Replace "Meta-Llama-3.1-8B" with the specific Llama3 model version you want to use.
-
-## Usage
-
-1. To see usage information and available options, use the "-h" or "--help" flag:
+sudo apt update && sudo apt upgrade -y≈
 
 ```
-   python llama3-perf.py -h
-```
 
-2. Run the script, specifying the path to the downloaded model:
+  
 
-```
-   python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B
-```
+3. **Install Essential Dependencies**:
 
-or for multiple models:
+Install the basic build tools and system dependencies:
 
-```
-   python llama3-perf.py ./meta-llama --multi_model
-```
+```bash
 
-3. By default, the script will perform 5 runs for TPS measurement. To specify a different number of runs, use the `--num_runs` argument:
+sudo apt install build-essential git curl wget -y
 
 ```
-  python llama3-perf.py ./meta-llama/Meta-Llama-3.1-8B --num_runs 10
+
+  
+
+### Step 2: Install Python and Create Environment
+
+1. **Install Python 3.10**:
+
+Install Python 3.10 if it's not already available on the system:
+
+```bash
+
+sudo apt install python3.10 python3.10-venv python3.10-dev -y
+
 ```
 
-The script will load the model, perform a warm-up run, and then measure the tokens per second (TPS), GPU memory usage, and CPU utilization for the specified number of runs.
+  
 
-The results will be printed to the console, including:
+2. **Install pip**:
 
-- TPS, GPU memory usage, and CPU utilization for each individual run
-- Average TPS, standard deviation of TPS, average GPU memory usage, and average CPU utilization across all runs
+Get pip, if it’s not available:
 
-## Notes
+```bash
 
-- This script requires a CUDA-capable GPU. It will not run on CPU.
-- The script uses half-precision (FP16) for faster inference.
-- A warm-up run is performed before the actual measurements to ensure more accurate results.
-- Make sure you have sufficient GPU memory to load the model. If you encounter out-of-memory errors, consider using a smaller model.
-- Adjust the `config` in the script to modify parameters such as `max_new_tokens`, `temperature`, etc.
-- GPU memory usage is reported in megabytes (MB).
-- CPU utilization is reported as a percentage of total CPU capacity.
-- Ensure you have proper permissions and have accepted the license agreement for the Llama3 model on Hugging Face.
+sudo apt install python3-pip -y
+
+```
+
+  
+
+3. **Create Virtual Environment**:
+
+Create a virtual environment for Python:
+
+```bash
+
+python3.10 -m venv llama3_env
+
+```
+
+  
+
+4. **Activate the Virtual Environment**:
+
+Activate the environment:
+
+```bash
+
+source llama3_env/bin/activate
+
+```
+
+  
+
+5. **Upgrade pip**:
+
+Upgrade pip inside the environment:
+
+```bash
+
+pip install --upgrade pip
+
+```
+
+  
+
+### Step 3: Install Required Libraries
+
+1. **Install PyTorch with CUDA**:
+
+Install PyTorch with CUDA support:
+
+```bash
+
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+```
+
+  
+
+2. **Install Additional Required Libraries**:
+
+Install `transformers`, `huggingface_hub`, and other libraries:
+
+```bash
+
+pip install transformers huggingface_hub pynvml accelerate requests Pillow
+
+```
+
+  
+
+3. **Install xFormers**:
+
+To optimize memory during multi-modal model testing, install xFormers:
+
+```bash
+
+pip install xformers
+
+```
+
+  
+
+### Step 4: Download and Setup Llama-3.2-11B-Vision-Instruct
+
+| ! NOTE: be sure that you have gor the access to the Hugging Face and to the LLama 3.2 11B model there. For doing this follow this link -> https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct 
+
+1. **Login to Hugging Face CLI**:
+
+You need to authenticate with Hugging Face to download the model:
+
+```bash
+
+huggingface-cli login
+
+```
+
+  
+
+Follow the instructions to log in with your Hugging Face account.
+
+  
+
+2. **Download Llama-3.2-11B-Vision-Instruct**:
+
+Use the Hugging Face CLI to download the model:
+
+```bash
+
+huggingface-cli download meta-llama/Llama-3.2-11B-Vision-Instruct --local-dir llama3_models --include "model.safetensors*"
+
+```
+
+  
+
+### Step 5: Prepare Testing Scripts and Dependencies
+
+1. **Clone the Testing Repository**:
+
+If you have a repository or scripts, clone or copy them to your machine. If not, create a working directory for the performance tests:
+
+```bash
+
+mkdir performance_test && cd performance_test
+
+```
+
+  
+
+2. **Download or Create Performance Testing Script**:
+
+You can use the script that was working for you earlier. Here's a sample command:
+
+```bash
+
+wget https://your-testing-script-link/llama3_perf_vllm.py
+
+```
+
+  
+
+3. **Install Additional Packages for Performance Monitoring**:
+
+Install any performance monitoring packages like `psutil`:
+
+```bash
+
+pip install psutil pandas
+
+```
+
+  
+
+### Step 6: Run the Tests
+
+1. **Ensure the Correct Environment Variables**:
+
+Set CUDA memory configurations:
+
+```bash
+
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+```
+
+  
+
+2. **Run the First Test (Tokens per Second)**:
+
+Run the script:
+
+```bash
+
+python llama3_perf_vllm.py
+
+```
+
+  
+
+3. **Placeholder for Image Testing**:
+
+For image-based tests, make sure you have the image files available in a directory. You can upload the images using `scp` or download them with `wget`:
+
+```bash
+
+mkdir images && cd images
+
+wget <image-url-1>
+
+wget <image-url-2>
+
+wget <image-url-3>
+
+```
+
+  
+
+### Step 7: Review and Output Results
+
+1. **Output Results to CSV**:
+
+Ensure the script outputs the results in CSV format. If needed, modify your Python script to append results to a CSV file, like:
+
+```python
+
+import csv
+
+with open("performance_results.csv", "w", newline="") as csvfile:
+
+writer = csv.writer(csvfile)
+
+writer.writerow(["Metric", "Value"])
+
+writer.writerow(["Tokens per Second", avg_tokens_per_second])
+
+```
+
+  
+
+### Step 8: Scaling and Resource Monitoring
+
+1. **Use nvidia-smi for GPU Monitoring**:
+
+Open another terminal and run:
+
+```bash
+
+nvidia-smi
+
+```
+
+  
+
+2. **Use `htop` for CPU Monitoring**:
+
+Run:
+
+```bash
+
+htop
+
+```
+
+  
+
+After completing these steps, you'll have the environment fully set up, ready to run the performance tests for Llama 3.2, and collect results in a structured way. Let me know when you’re ready to move forward with specific tests!
